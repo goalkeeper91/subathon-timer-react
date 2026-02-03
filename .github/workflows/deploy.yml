@@ -1,0 +1,74 @@
+name: 🚀 Deploy Subathon Timer
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggert bei v1.0.0, v1.1.0 etc.
+  workflow_dispatch: # Erlaubt manuellen Start in GitHub UI
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📦 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔑 Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_KEY }}
+
+      - name: 🌐 Add Server to Known Hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+
+      - name: 📂 Create App Directory on Server
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} \
+            "mkdir -p /home/${{ secrets.SERVER_USER }}/app/subathon-timer"
+
+      - name: 🚀 Sync Source Code to Server
+        run: |
+          # Wir schließen node_modules und .next aus, da diese im Docker-Container gebaut werden
+          rsync -avz --delete \
+          --exclude '.git' \
+          --exclude '.github' \
+          --exclude 'node_modules' \
+          --exclude '.next' \
+          ./ \
+          ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USER }}/app/subathon-timer/
+
+      - name: 🛠️ Build and Restart Docker Container
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /home/${{ secrets.SERVER_USER }}/app/subathon-timer
+            
+            # .env Datei für Next.js dynamisch aus GitHub Secrets erstellen
+            echo "NEXT_PUBLIC_TWITCH_CLIENT_ID=${{ secrets.TWITCH_CLIENT_ID }}" > .env
+            echo "NEXT_PUBLIC_BASE_URL=https://timer.goalkeeper91.de" >> .env
+            
+            # Falls du Twitch-Secrets auf Server-Ebene brauchst (für API):
+            # echo "TWITCH_CLIENT_SECRET=${{ secrets.TWITCH_CLIENT_SECRET }}" >> .env
+
+            # Docker Compose Build & Up
+            # Wir nutzen --build um sicherzustellen, dass die neuen Files im Image landen
+            docker compose up -d --build
+          EOF
+
+      - name: ✅ Verify Deployment
+        run: |
+          ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            echo "🐳 Container Status:"
+            docker ps | grep subathon-timer
+            echo "✅ Deployment erfolgreich abgeschlossen!"
+          EOF
+
+      - name: 📝 Summary
+        if: success()
+        run: |
+          echo "### 🎉 Timer Deployment Erfolgreich!" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**URL:** https://timer.goalkeeper91.de/dashboard" >> $GITHUB_STEP_SUMMARY
+          echo "**Overlay:** https://timer.goalkeeper91.de/overlay" >> $GITHUB_STEP_SUMMARY
