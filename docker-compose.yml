@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  subathon-timer:
+    build: .
+    container_name: subathon-timer
+    restart: always
+    # Wir mappen den Port auf 3000 am Host, damit dein Nginx
+    # via localhost:3000 darauf zugreifen kann (wie in deiner Config).
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+
+networks:
+  # Wir lassen den Container in seinem eigenen Standard-Netzwerk.
+  # Da wir den Port mappen, findet Nginx ihn trotzdem über localhost.
+  default:
+    name: subathon-network
