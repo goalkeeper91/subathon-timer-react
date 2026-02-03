@@ -15,9 +15,10 @@ services:
       - .env
     environment:
       - NODE_ENV=production
+    networks:
+      - app-network
 
 networks:
-  # Wir lassen den Container in seinem eigenen Standard-Netzwerk.
-  # Da wir den Port mappen, findet Nginx ihn trotzdem über localhost.
-  default:
-    name: subathon-network
+ app-network:
+    external: true
+    name: app_app-network
