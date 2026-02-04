@@ -764,3 +764,98 @@ button:disabled {
   pointer-events: none;
   z-index: 100;
 }
+
+/* Landing Page Layout */
+.landing-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.landing-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5rem;
+}
+
+.hero-section {
+    text-align: center;
+    margin-bottom: 6rem;
+    animation: fadeInScale 0.8s ease-out;
+}
+
+.hero-title {
+    font-size: clamp(3rem, 10vw, 6rem) !important;
+    line-height: 1.1;
+    margin-top: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.hero-desc {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto 3rem;
+    line-height: 1.6;
+}
+
+.hero-cta {
+    display: flex;
+    justify-content: center;
+}
+
+/* Features Bereich */
+.features-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 5rem;
+}
+
+.feature-item {
+    text-align: center;
+    padding: 2.5rem !important;
+    transition: transform 0.3s ease;
+}
+
+.feature-item:hover {
+    transform: translateY(-10px);
+    border-color: var(--neon-cyan) !important;
+}
+
+.feature-item p {
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Footer Style */
+.landing-footer {
+    margin-top: auto;
+    padding: 2rem 0;
+    border-top: 1px solid rgba(168, 85, 247, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--text-secondary);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+/* Responsive Fixes */
+@media (max-width: 768px) {
+    .landing-nav {
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .hero-section {
+        margin-bottom: 3rem;
+    }
+}
