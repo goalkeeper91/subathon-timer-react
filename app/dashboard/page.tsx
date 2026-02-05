@@ -5,7 +5,7 @@ import { useTwitchAuth } from '@/hooks/useTwitchAuth';
 import { useTwitchEvents } from '@/hooks/useTwitchEvents';
 
 export default function DashboardPage() {
-  const { user, login, logout, isAuthorized } = useTwitchAuth();
+  const { user, logout, isAuthorized } = useTwitchAuth();
   
   const { 
     time, 
@@ -31,25 +31,6 @@ export default function DashboardPage() {
     alert("OBS Overlay URL kopiert!");
   };
 
-  if (!isAuthorized) {
-    return (
-      <div className="login-container active">
-        <div className="scanlines"></div>
-        <div className="login-logo glitch" data-text="SUBATHON">SUBATHON</div>
-        <div className="login-subtitle">Live Timer System</div>
-        
-        <button className="btn-twitch-login" onClick={login} style={{ marginTop: '2rem' }}>
-          <span>Mit Twitch anmelden</span>
-        </button>
-
-        <div className="login-info" style={{ marginTop: '2rem', opacity: 0.7 }}>
-          <p>Erforderliche Berechtigungen: Subs, Bits, Follows</p>
-        </div>
-      </div>
-    );
-  }
-
-  // 2. MAIN DASHBOARD
   return (
     <div className="container active" id="mainApp">
       <div className="scanlines"></div>

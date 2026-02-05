@@ -12,9 +12,13 @@ export function useTwitchAuth() {
 
   const logout = () => {
     localStorage.removeItem('twitch_access_token');
+
+    document.cookie = "twitch_access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Lax; Secure";
+
     setIsAuthorized(false);
     setUser(null);
-    window.location.href = '/dashboard';
+    
+    window.location.href = '/';
   };
 
   const fetchUserData = useCallback(async (token: string) => {
@@ -35,7 +39,6 @@ export function useTwitchAuth() {
         });
         setIsAuthorized(true);
         
-        // WICHTIG: Token an unser Backend synchronisieren
         await fetch('/api/timer', {
           method: 'POST',
           body: JSON.stringify({ 
@@ -53,17 +56,17 @@ export function useTwitchAuth() {
   }, []);
 
   useEffect(() => {
-    // 1. Prüfen ob Token in der URL (nach Redirect)
     const hash = window.location.hash;
     const params = new URLSearchParams(hash.substring(1));
     const tokenFromUrl = params.get('access_token');
 
     if (tokenFromUrl) {
       localStorage.setItem('twitch_access_token', tokenFromUrl);
-      window.history.replaceState({}, document.title, window.location.pathname);
-      fetchUserData(tokenFromUrl);
+      
+      document.cookie = `twitch_access_token=${tokenFromUrl}; path=/; max-age=${60 * 60 * 24 * 60}; SameSite=Lax; Secure`;
+
+      window.location.href = '/dashboard';
     } else {
-      // 2. Prüfen ob Token im LocalStorage
       const savedToken = localStorage.getItem('twitch_access_token');
       if (savedToken) {
         fetchUserData(savedToken);

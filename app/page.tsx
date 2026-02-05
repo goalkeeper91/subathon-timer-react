@@ -1,7 +1,11 @@
-import React from 'react';
+"use client";
+import React, { useState } from 'react';
 import Link from 'next/link';
+import LoginModal from '@/components/LoginModal';
 
 export default function LandingPage() {
+  const [isModalOpen, setModalOpen] = useState(false);
+
   return (
     <main className="landing-page">
       <div className="scanlines"></div>
@@ -11,9 +15,6 @@ export default function LandingPage() {
         <div className="login-logo glitch" data-text="GOALKEEPER91">
           GOALKEEPER91
         </div>
-        <Link href="/dashboard" className="btn-logout" style={{padding: '0.8rem 1.5rem'}}>
-          LOGIN
-        </Link>
       </nav>
 
       <section className="hero-section">
@@ -27,13 +28,13 @@ export default function LandingPage() {
         </p>
         
         <div className="hero-cta">
-          <Link href="/dashboard" className="btn-twitch-login">
+          <button onClick={() => setModalOpen(true)} className="btn-twitch-login">
             <span>ZUM DASHBOARD</span>
-          </Link>
+          </button>
         </div>
       </section>
 
-      {/* Feature Grid - nutzt deine Panel-Stile */}
+      {/* Feature Grid */}
       <section className="features-container">
         <div className="feature-item main-panel">
           <div className="stat-value" style={{color: 'var(--neon-cyan)', marginBottom: '1rem'}}>⚡</div>
@@ -57,7 +58,18 @@ export default function LandingPage() {
       <footer className="landing-footer">
         <div className="status-dot connected"></div>
         <span>SYSTEM STATUS: OPERATIONAL</span>
+  
+        <div className="footer-links" style={{ display: 'flex', gap: '1.5rem', fontSize: '0.8rem' }}>
+          <a href="https://goalkeeper91.de/legal/impressum" target="_blank" rel="noopener noreferrer">IMPRESSUM</a>
+          <a href="https://goalkeeper91.de/legal/datenschutz" target="_blank" rel="noopener noreferrer">DATENSCHUTZ</a>
+        </div>
       </footer>
+
+      {/* Login Modal */}
+      <LoginModal
+        isOpen={isModalOpen}
+        onClose={() => setModalOpen(false)}
+      />
     </main>
   );
 }
