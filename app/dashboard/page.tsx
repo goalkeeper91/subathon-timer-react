@@ -6,6 +6,10 @@ import { useTwitchEvents } from '@/hooks/useTwitchEvents';
 
 export default function DashboardPage() {
   const { user, logout, isAuthorized } = useTwitchAuth();
+  const [ovColor, setOvColor] = useState('ffffff');
+  const [ovBg, setOvBg] = useState(true);
+  const [ovOpacity, setOvOpacity] = useState('0.4');
+  const [ovGlow, setOvGlow] = useState(true);
   
   const { 
     time, 
@@ -20,15 +24,18 @@ export default function DashboardPage() {
     queueSize 
   } = useTimerLogic();
 
+  const generatedUrl = typeof window !== 'undefined' 
+  ? `${window.location.origin}/overlay?color=${ovColor.replace('#', '')}&bg=${ovBg}&op=${ovOpacity}&glow=${ovGlow}`
+  : '';
+
   useTwitchEvents(
     typeof window !== 'undefined' ? localStorage.getItem('twitch_access_token') : null, 
     user?.id || null
   );
 
   const copyObsUrl = () => {
-    const url = `${window.location.origin}/overlay`;
-    navigator.clipboard.writeText(url);
-    alert("OBS Overlay URL kopiert!");
+    navigator.clipboard.writeText(generatedUrl);
+    alert("Custom Overlay URL kopiert!");
   };
 
   return (
@@ -112,16 +119,59 @@ export default function DashboardPage() {
           </div>
 
           <div className="processing-panel" style={{ marginTop: '1rem' }}>
-            <div className="panel-title">🔗 OBS Integration</div>
+            <div className="panel-title">🔗 Overlay Customizer</div>
+            
+            <div className="control-group" style={{ marginBottom: '1rem' }}>
+              <label style={{ fontSize: '0.7rem' }}>Text Farbe</label>
+              <input 
+                type="color" 
+                value={`#${ovColor}`} 
+                onChange={(e) => setOvColor(e.target.value.replace('#', ''))}
+                style={{ width: '100%', height: '30px', cursor: 'pointer', background: 'none', border: '1px solid var(--neon-purple)' }}
+              />
+            </div>
+
+            <div className="control-group" style={{ display: 'flex', gap: '10px', marginBottom: '1rem' }}>
+              <label style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={ovBg} onChange={(e) => setOvBg(e.target.checked)} />
+                Background
+              </label>
+              <label style={{ fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+                <input type="checkbox" checked={ovGlow} onChange={(e) => setOvGlow(e.target.checked)} />
+                Glow
+              </label>
+            </div>
+
+            {ovBg && (
+              <div className="control-group" style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.7rem' }}>Transparenz ({ovOpacity})</label>
+                <input 
+                  type="range" min="0" max="1" step="0.1" 
+                  value={ovOpacity} 
+                  onChange={(e) => setOvOpacity(e.target.value)}
+                  style={{ width: '100%', accentColor: 'var(--neon-purple)' }}
+                />
+              </div>
+            )}
+
             <div className="control-group">
+              <label style={{ fontSize: '0.7rem' }}>OBS Browser-Quelle URL:</label>
               <input 
                 type="text" 
                 readOnly 
-                value={typeof window !== 'undefined' ? `${window.location.origin}/overlay` : ''}
-                style={{ width: '100%', fontSize: '0.7rem', marginBottom: '0.5rem', background: 'rgba(0,0,0,0.5)', border: '1px solid var(--neon-purple)', color: 'var(--neon-cyan)', padding: '5px' }}
+                value={generatedUrl}
+                style={{ 
+                  width: '100%', 
+                  fontSize: '0.6rem', 
+                  marginBottom: '0.5rem', 
+                  background: 'rgba(0,0,0,0.5)', 
+                  border: '1px solid var(--neon-cyan)', 
+                  color: 'var(--neon-cyan)', 
+                  padding: '5px' 
+                }}
               />
-              <button className="btn-reset" style={{ width: '100%' }} onClick={copyObsUrl}>
-                URL Kopieren
+              <button className="btn-reset" style={{ width: '100%', padding: '10px' }} onClick={copyObsUrl}>
+                URL FÜR OBS KOPIEREN
               </button>
             </div>
           </div>
